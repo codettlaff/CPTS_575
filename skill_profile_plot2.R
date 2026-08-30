@@ -24,23 +24,24 @@ skills$skill <- factor(skills$skill, levels = skills$skill)
 # Assign colors explicitly
 skills$bar_color <- colors[as.character(skills$skill)]
 
+# Green used for the Profile legend
+profile_color <- colors["Domain Expertise"]
+
 p <- ggplot(skills, aes(x = skill)) +
   
-  # Current: solid bars
+  # Projected: transparent bars underneath
   geom_col(
-    aes(y = current, fill = bar_color),
+    aes(y = projected, fill = bar_color, alpha = "Projected"),
     width = 0.7
   ) +
   
-  # Projected: transparent bars with dashed outlines
+  # Current: solid bars on top
   geom_col(
-    aes(y = projected, fill = bar_color),
-    alpha = 0.25,
-    color = NA,
+    aes(y = current, fill = bar_color, alpha = "Current"),
     width = 0.7
   ) +
   
-  # Skill color legend
+  # Skill colors
   scale_fill_identity(
     name = "Skill",
     breaks = skills$bar_color,
@@ -48,24 +49,17 @@ p <- ggplot(skills, aes(x = skill)) +
     guide = "legend"
   ) +
   
-  # Profile legend
-  geom_col(
-    aes(y = current, linetype = "Current"),
-    fill = NA,
-    color = "black",
-    alpha = 0
-  ) +
-  geom_col(
-    aes(y = projected, linetype = "Projected"),
-    fill = NA,
-    color = "black",
-    alpha = 0
-  ) +
-  scale_linetype_manual(
+  # Current vs. Projected
+  scale_alpha_manual(
     name = "Profile",
     values = c(
-      "Current" = "solid",
-      "Projected" = "dashed"
+      "Current" = 1,
+      "Projected" = 0.25
+    ),
+    guide = guide_legend(
+      override.aes = list(
+        fill = profile_color
+      )
     )
   ) +
   
