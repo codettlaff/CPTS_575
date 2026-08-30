@@ -10,14 +10,18 @@ skills <- data.frame(
 plot_skills <- function(data, level, title, filename, color_profile) {
   data <- data[order(-data[[level]]), ]
   data$skill <- factor(data$skill, levels = data$skill)
-  data$bar_color <- color_profile[as.character(data$skill)]
   
-  p <- ggplot(data, aes(x = skill, y = .data[[level]], fill = bar_color)) +
+  p <- ggplot(data, aes(x = skill, y = .data[[level]], fill = skill)) +
     geom_col() +
-    scale_fill_identity() +
-    labs(title = title, x = "Skill", y = "Skill Level") +
+    scale_fill_manual(values = color_profile) +
+    labs(title = title, x = NULL, y = NULL, fill = "Skill") +
     theme_minimal(base_size = 12) +
-    theme(legend.position = "none")
+    theme(
+      axis.text.x = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
   
   print(p)
   ggsave(filename, p, width = 8.5, height = 6, units = "in", dpi = 300)
