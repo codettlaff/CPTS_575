@@ -14,13 +14,15 @@ plot_skills <- function(data, level, title, filename, color_profile) {
   p <- ggplot(data, aes(x = skill, y = .data[[level]], fill = skill)) +
     geom_col() +
     scale_fill_manual(values = color_profile) +
-    labs(title = title, x = NULL, y = NULL, fill = "Skill") +
+    labs(title = NULL, x = NULL, y = NULL, fill = "Skill") +
     theme_minimal(base_size = 12) +
     theme(
       axis.text.x = element_blank(),
       axis.ticks.x = element_blank(),
       axis.text.y = element_blank(),
-      axis.ticks.y = element_blank()
+      axis.ticks.y = element_blank(),
+      legend.text = element_text(size = 14),
+      legend.title = element_text(size = 14)
     )
   
   print(p)
