@@ -1,49 +1,48 @@
 library(ggplot2)
 
-cs <- 5
-math <- 6
-stat <- 3
-ml <- 4
-dom <- 7
-dvis <- 2
-com <- 1
-
 skills <- data.frame(
-  skill = c("Computer Science", "Mathematics", "Statistics", "Machine Learning", "Domain Expertise", "Data Visualization", "Presentation"),
-  level = c(cs, math, stat, ml, dom, dvis, com))
+  skill = c("Computer Science", "Mathematics", "Statistics", "Machine Learning",
+            "Domain Expertise", "Data Visualization", "Presentation"),
+  current = c(5, 6, 3, 4, 7, 2, 1),
+  projected = c(5, 6, 4, 5, 7, 3, 2)
+)
 
-print(
-  ggplot(skills, aes(x = skill, y = level)) +
+plot_skills <- function(data, level, title, filename, color_profile) {
+  data <- data[order(-data[[level]]), ]
+  data$skill <- factor(data$skill, levels = data$skill)
+  data$bar_color <- color_profile[as.character(data$skill)]
+  
+  p <- ggplot(data, aes(x = skill, y = .data[[level]], fill = bar_color)) +
     geom_col() +
-    labs(
-      title = "Data Science Skill Profile",
-      x = "Skill",
-      y = "Skill Level") +
-    theme_minimal())
+    scale_fill_identity() +
+    labs(title = title, x = "Skill", y = "Skill Level") +
+    theme_minimal(base_size = 12) +
+    theme(legend.position = "none")
+  
+  print(p)
+  ggsave(filename, p, width = 8.5, height = 6, units = "in", dpi = 300)
+}
 
-ggsave('data_science_skill_profile.png')
+colors <- c(
+  "Computer Science" = "#4E79A7",
+  "Mathematics" = "#F28E2B",
+  "Statistics" = "#E15759",
+  "Machine Learning" = "#76B7B2",
+  "Domain Expertise" = "#59A14F",
+  "Data Visualization" = "#B07AA1",
+  "Presentation" = "#9C755F"
+)
 
-# Projected Profile
-cs <- 5
-math <- 6
-stat <- 4
-ml <- 5
-dom <- 7
-dvis <- 3
-com <- 2
+plot_skills(
+  skills, "current",
+  "Data Science Skill Profile",
+  "data_science_skill_profile.png",
+  colors
+)
 
-projected_skills <- data.frame(
-  skill = c("Computer Science", "Mathematics", "Statistics", "Machine Learning", "Domain Expertise", "Data Visualization", "Presentation"),
-  level = c(cs, math, stat, ml, dom, dvis, com))
-
-print(
-  ggplot(projected_skills, aes(x = skill, y = level)) +
-    geom_col() +
-    labs(
-      title = "Data Science Projected Skill Profile",
-      x = "Skill",
-      y = "Skill Level") +
-    theme_minimal())
-
-ggsave('data_science_projected_skill_profile.png')
-
+plot_skills(
+  skills, "projected",
+  "Data Science Projected Skill Profile",
+  "data_science_projected_skill_profile.png",
+  colors
+)
