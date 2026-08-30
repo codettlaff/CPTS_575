@@ -4,7 +4,7 @@ skills <- data.frame(
   skill = c("Computer Science", "Mathematics", "Statistics", "Machine Learning",
             "Domain Expertise", "Data Visualization", "Presentation"),
   current = c(5, 6, 3, 4, 7, 2, 1),
-  projected = c(5, 6, 4, 5, 7, 3, 2)
+  projected = c(5, 6, 5, 6, 7, 5, 5)
 )
 
 colors <- c(
