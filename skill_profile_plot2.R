@@ -34,13 +34,13 @@ p <- ggplot(skills, aes(x = skill)) +
   
   # Projected: transparent bars with dashed outlines
   geom_col(
-    aes(y = projected, color = bar_color),
-    fill = NA,
-    linewidth = 1.2,
-    linetype = "dashed",
+    aes(y = projected, fill = bar_color),
+    alpha = 0.25,
+    color = NA,
     width = 0.7
   ) +
   
+  # Skill color legend
   scale_fill_identity(
     name = "Skill",
     breaks = skills$bar_color,
@@ -48,9 +48,25 @@ p <- ggplot(skills, aes(x = skill)) +
     guide = "legend"
   ) +
   
-  scale_color_identity(
-    name = "Projected",
-    guide = "none"
+  # Profile legend
+  geom_col(
+    aes(y = current, linetype = "Current"),
+    fill = NA,
+    color = "black",
+    alpha = 0
+  ) +
+  geom_col(
+    aes(y = projected, linetype = "Projected"),
+    fill = NA,
+    color = "black",
+    alpha = 0
+  ) +
+  scale_linetype_manual(
+    name = "Profile",
+    values = c(
+      "Current" = "solid",
+      "Projected" = "dashed"
+    )
   ) +
   
   labs(x = NULL, y = NULL) +
