@@ -20,8 +20,17 @@ red_wine_data <- read.csv("data/wine+quality/winequality-red.csv", sep=";")
 # head(red_wine_data)
 
 # Tell Quarto to render output as properly formatted table.
-knitr::kable(head(red_wine_data), 
-             caption='First six observations of the red wine quality dataset')
+# First six columns
+knitr::kable(
+  head(red_wine_data[, 1:6]),
+  caption = "First six observations of the red wine quality dataset."
+)
+
+# Last six columns
+knitr::kable(
+  head(red_wine_data[, 7:12]),
+  caption = "First six observations of the red wine quality dataset."
+)
 ```
 
 ## 1.b Summary Statistics
