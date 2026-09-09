@@ -38,6 +38,7 @@ knitr::kable(
 ### 1. Median Quality Score
 
 ```{r}
+#| include: false
 median_quality <- median(red_wine_data$quality)
 
 median_quality
@@ -48,9 +49,36 @@ The median quality score across all wine samples is **`r median_quality`**.
 ### 2. Mean Alcohol Level
 
 ```{r}
+#| include: false
 mean_alcohol <- mean(red_wine_data$alcohol)
 
 mean_alcohol
 ```
 
 The mean alcohol level across all wine samples is **`r mean_alcohol`**.
+
+## 1.c Density and Volatile Acidity
+
+```{r}
+# Calculate the linear regression model
+model <- lm(volatile.acidity ~ density, data = red_wine_data)
+
+# Extract slope and R-squared
+slope <- coef(model)["density"]
+r_squared <- summary(model)$r.squared
+
+ggplot(red_wine_data, aes(x = density, y = volatile.acidity)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Relationship Between Density and Volatile Acidity",
+    subtitle = paste(
+      "Slope =", round(slope, 3),
+      "| R² =", round(r_squared, 3)
+    ),
+    x = "Density",
+    y = "Volatile Acidity"
+  )
+```
+
+The best-fit line has a slope of **`r round(slope, 3)`**, indicating a slight positive relationship between density and volatile acidity. However, With an R² value of **`r round(r_squared, 3)`**, there is essentially no linear relationship between density and volatile acidity in this dataset.
