@@ -1,0 +1,175 @@
+---
+title: "Exercise 1. Red Wine Quality Dataset"
+# format: html
+format: pdf
+---
+
+# Red Wine Quality Dataset
+
+## 1.a Reading the Dataset
+Read the dataset into an R object. Make sure the column headers are correct, and show the first couple rows.
+```{r}
+#| message: false
+
+library(tidyverse)
+library(kableExtra)
+
+red_wine_data <- read.csv(
+  "data/wine+quality/winequality-red.csv",
+  sep = ";"
+)
+
+# Display the first six observations of the first six variables
+table_1 <- knitr::kable(
+  head(red_wine_data[, 1:6]),
+  caption = "First six observations of the red wine quality dataset."
+) %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
+
+# Display the first six observations of the last six variables
+table_2 <- knitr::kable(
+  head(red_wine_data[, 7:12]),
+  caption = "First six observations of the red wine quality dataset."
+) %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
+
+table_1
+table_2
+```
+
+## 1.b Summary Statistics
+
+```{r}
+median_quality <- median(red_wine_data$quality)
+mean_alcohol <- mean(red_wine_data$alcohol)
+```
+### 1. Median Quality Score: **`r median_quality`**
+### 2. Mean Alcohol Level: **`r mean_alcohol`**
+
+## 1.c Density and Volatile Acidity
+Create a scatterplot showing the relationship between density and volatile acidity.
+```{r}
+#| message: false
+
+# Calculate the linear regression model
+model <- lm(volatile.acidity ~ density, data = red_wine_data)
+
+# Extract slope and R-squared
+slope <- coef(model)["density"]
+r_squared <- summary(model)$r.squared
+
+ggplot(red_wine_data, aes(x = density, y = volatile.acidity)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Relationship Between Density and Volatile Acidity",
+    subtitle = paste(
+      "Slope =", round(slope, 3),
+      "| R² =", round(r_squared, 3)
+    ),
+    x = "Density",
+    y = "Volatile Acidity"
+  )
+```
+The best-fit line has a slope of **`r round(slope, 3)`**, which indicates a positive relationship between density and volatile acidity. However, With an R² value of **`r round(r_squared, 3)`**, the relationship is very weak. There is essentially no relationship between the two variables.
+
+## 1.d Alcohol Level Categories
+Classify each wine sample according to the following conditions:
+
+- **High**: Alcohol level is greater than 10.5
+- **Medium**: Alcohol level is less than or equal to 10.5.
+
+```{r}
+# Create the ALevel categorical variable
+red_wine_data$ALevel <- ifelse(
+  red_wine_data$alcohol > 10.5,
+  "High",
+  "Medium"
+)
+
+# Calculate the sulphates-to-chlorides ratio
+red_wine_data$sulphates_to_chlorides <- 
+  red_wine_data$sulphates / red_wine_data$chlorides
+
+# Create side-by-side boxplots
+ggplot(
+  red_wine_data,
+  aes(x = ALevel, y = sulphates_to_chlorides)
+) +
+  geom_boxplot() +
+  labs(
+    title = "Sulphates-to-Chlorides Ratio by Alcohol Level",
+    x = "Alcohol Level",
+    y = "Sulphates-to-Chlorides Ratio"
+  )
+
+# Count the number of High ALevel samples
+high_count <- sum(red_wine_data$ALevel == "High")
+```
+
+The **High** group has a higher median sulphates-to-chlorides ratio than the **Medium** group. The **High** group also shows greater variability. Both groups contain several high-level outliers. There are **`r high_count`** wine samples in the **High** ALevel category.
+
+## 1.e Citric Acid Distribution
+Create a histogram showing the citric acid values for both the **High** and **Medium** groups. If both groups are shown in the same plot, include a legend to distinguish them.
+
+```{r}
+ggplot(
+  red_wine_data,
+  aes(x = citric.acid, fill = ALevel)
+) +
+  geom_histogram(
+    bins = 20,
+    alpha = 0.5,
+    position = "identity"
+  ) +
+  labs(
+    title = "Citric Acid Distribution by Alcohol Level",
+    x = "Citric Acid",
+    y = "Number of Wine Samples",
+    fill = "Alcohol Level"
+  )
+```
+
+## 1.f Additional Exploration
+Continue exploring the dataset by creating two additional plots. For each plot:
+
+- State the question or hypothsis.
+- Include the code and resulting plot.
+- Summarize what you observe.
+
+### Plot 1: Alcohol Level and Wine Quality
+**Question:** Does alcohol level vary across different wine qualities?
+```{r}
+ggplot(red_wine_data, aes(x = factor(quality), y = alcohol)) +
+  geom_boxplot() +
+  labs(
+    title = "Alcohol Level by Wine Quality",
+    x = "Wine Quality Score",
+    y = "Alcohol Level"
+  )
+```
+Higher-quality wines generally have higher alcohol levels. The median alcohol level increases noticeably for quality scores 6–8 compared with scores 3–5. 
+
+### Plot 2: pH and Fixed Acidity
+**Question:** Is there a relationship between fixed acidity and pH?
+```{r}
+#| message: false
+
+model <- lm(pH ~ fixed.acidity, data = red_wine_data)
+slope <- coef(model)["fixed.acidity"]
+r_squared <- summary(model)$r.squared
+
+ggplot(red_wine_data, aes(x = fixed.acidity, y = pH)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Relationship Between Fixed Acidity and pH",
+    subtitle = paste(
+      "Slope =", round(slope, 3),
+      "| R² =", round(r_squared, 3)
+    ),
+    x = "Fixed Acidity",
+    y = "pH"
+  )
+```
+The scatterplot shows a moderate negative linear relationship between fixed acidity and pH. The slope of −0.061 indicates that pH decreases as fixed acidity increases, while the R² value of 0.466 indicates that fixed acidity explains approximately 46.6% of the variation in pH.
