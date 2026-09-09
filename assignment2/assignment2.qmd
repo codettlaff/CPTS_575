@@ -82,3 +82,35 @@ ggplot(red_wine_data, aes(x = density, y = volatile.acidity)) +
 ```
 
 The best-fit line has a slope of **`r round(slope, 3)`**, indicating a slight positive relationship between density and volatile acidity. However, With an R² value of **`r round(r_squared, 3)`**, there is essentially no linear relationship between density and volatile acidity in this dataset.
+
+## 1.d Alcohol Level Categories
+
+```{r}
+# Create the ALevel categorical variable
+red_wine_data$ALevel <- ifelse(
+  red_wine_data$alcohol > 10.5,
+  "High",
+  "Medium"
+)
+
+# Calculate the sulphates-to-chlorides ratio
+red_wine_data$sulphates_to_chlorides <- 
+  red_wine_data$sulphates / red_wine_data$chlorides
+
+# Create side-by-side boxplots
+ggplot(
+  red_wine_data,
+  aes(x = ALevel, y = sulphates_to_chlorides)
+) +
+  geom_boxplot() +
+  labs(
+    title = "Sulphates-to-Chlorides Ratio by Alcohol Level",
+    x = "Alcohol Level",
+    y = "Sulphates-to-Chlorides Ratio"
+  )
+
+# Count the number of High ALevel samples
+high_count <- sum(red_wine_data$ALevel == "High")
+```
+
+There are **`r high_count`** wine samples in the **High** ALevel category.
