@@ -1,0 +1,47 @@
+---
+title: "Assignment 2"
+# format: html
+format: pdf
+---
+
+# Red Wine Quality Dataset
+
+## 1.a Reading the Dataset
+
+```{r}
+#| message: false
+library(tidyverse)
+library('tinytex')
+
+red_wine_data <- read.csv("data/wine+quality/winequality-red.csv", sep=";")
+
+# Display the first few rows to verify that the column headers
+# were correctly recognized and not treated as a row of data.
+# head(red_wine_data)
+
+# Tell Quarto to render output as properly formatted table.
+knitr::kable(head(red_wine_data), 
+             caption='First six observations of the red wine quality dataset')
+```
+
+## 1.b Summary Statistics
+
+### 1. Median Quality Score
+
+```{r}
+median_quality <- median(red_wine_data$quality)
+
+median_quality
+```
+
+The median quality score across all wine samples is **`r median_quality`**.
+
+### 2. Mean Alcohol Level
+
+```{r}
+mean_alcohol <- mean(red_wine_data$alcohol)
+
+mean_alcohol
+```
+
+The mean alcohol level across all wine samples is **`r mean_alcohol`**.
