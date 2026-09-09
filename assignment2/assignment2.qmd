@@ -134,3 +134,40 @@ ggplot(
     fill = "Alcohol Level"
   )
 ```
+
+## 1.f Additional Exploration
+
+### Plot 1: Alcohol Level and Wine Quality
+**Question:** Does alcohol level vary across different wine qualities?
+```{r}
+ggplot(red_wine_data, aes(x = factor(quality), y = alcohol)) +
+  geom_boxplot() +
+  labs(
+    title = "Alcohol Level by Wine Quality",
+    x = "Wine Quality Score",
+    y = "Alcohol Level"
+  )
+```
+Higher-quality wines generally have higher alcohol levels. The median alcohol level increases noticeably for quality scores 6–8 compared with scores 3–5.
+
+### Plot 2: pH and Fixed Acidity
+**Question:** Is there a relationship between fixed acidity and pH?
+```{r}
+model <- lm(pH ~ fixed.acidity, data = red_wine_data)
+slope <- coef(model)["fixed.acidity"]
+r_squared <- summary(model)$r.squared
+
+ggplot(red_wine_data, aes(x = fixed.acidity, y = pH)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Relationship Between Fixed Acidity and pH",
+    subtitle = paste(
+      "Slope =", round(slope, 3),
+      "| R² =", round(r_squared, 3)
+    ),
+    x = "Fixed Acidity",
+    y = "pH"
+  )
+```
+The scatterplot shows a moderate negative linear relationship between fixed acidity and pH. The slope of −0.061 indicates that pH decreases as fixed acidity increases, while the R² value of 0.466 indicates that fixed acidity explains approximately 46.6% of the variation in pH.
