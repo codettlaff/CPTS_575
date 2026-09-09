@@ -114,3 +114,23 @@ high_count <- sum(red_wine_data$ALevel == "High")
 ```
 
 There are **`r high_count`** wine samples in the **High** ALevel category.
+
+## 1.e Citric Acid Distribution
+
+```{r}
+ggplot(
+  red_wine_data,
+  aes(x = citric.acid, fill = ALevel)
+) +
+  geom_histogram(
+    bins = 20,
+    alpha = 0.5,
+    position = "identity"
+  ) +
+  labs(
+    title = "Citric Acid Distribution by Alcohol Level",
+    x = "Citric Acid",
+    y = "Number of Wine Samples",
+    fill = "Alcohol Level"
+  )
+```
