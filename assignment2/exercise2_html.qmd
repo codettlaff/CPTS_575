@@ -1,0 +1,72 @@
+---
+title: "exercise2_html"
+format: html
+---
+
+# Bike Sharing Dataset
+
+## 2.a Variable Types 
+Identify which predictors are quantitative and which are qualitative.
+
+```{r}
+#| output: false
+
+library(tidyverse)
+
+day_data <- read.csv(
+  "data/bike+sharing+dataset/day.csv",
+  sep = ","
+)
+
+hour_data <- read.csv(
+  "data/bike+sharing+dataset/hour.csv",
+  sep = ","
+)
+
+# Variables that are numerically encoded but represent categories
+day_categorical <- c(
+  "season", "yr", "mnth", "holiday",
+  "weekday", "workingday", "weathersit"
+)
+
+hour_categorical <- c(
+  "season", "yr", "mnth", "hr", "holiday",
+  "weekday", "workingday", "weathersit"
+)
+
+# Quantitative variables: numeric variables that are not categorical
+day_quantitative <- names(day_data)[
+  sapply(day_data, is.numeric) &
+  !(names(day_data) %in% day_categorical)
+]
+
+hour_quantitative <- names(hour_data)[
+  sapply(hour_data, is.numeric) &
+  !(names(hour_data) %in% hour_categorical)
+]
+
+# Qualitative variables: character/factor variables + numerically encoded categories
+day_qualitative <- names(day_data)[
+  sapply(day_data, function(x) is.character(x) | is.factor(x)) |
+  names(day_data) %in% day_categorical
+]
+
+hour_qualitative <- names(hour_data)[
+  sapply(hour_data, function(x) is.character(x) | is.factor(x)) |
+  names(hour_data) %in% hour_categorical
+]
+
+# Print results
+cat("DAY DATASET\n")
+cat("Quantitative variables:\n")
+cat(paste(day_quantitative, collapse = ", "))
+cat("\n\nQualitative variables:\n")
+cat(paste(day_qualitative, collapse = ", "))
+
+cat("\n\n\nHOUR DATASET\n")
+cat("Quantitative variables:\n")
+cat(paste(hour_quantitative, collapse = ", "))
+cat("\n\nQualitative variables:\n")
+cat(paste(hour_qualitative, collapse = ", "))
+
+```
