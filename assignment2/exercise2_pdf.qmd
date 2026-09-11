@@ -1,5 +1,5 @@
 ---
-title: "exercise2_html"
+title: "Bike Sharing Dataset"
 format: pdf
 ---
 
@@ -7,10 +7,13 @@ format: pdf
 
 ## 2.a Variable Types 
 Identify which predictors are quantitative and which are qualitative.
-
 ```{r}
+#| output: false
+#| message: false
+#| warning: false
 
 library(tidyverse)
+library(kableExtra)
 
 day_data <- read.csv(
   "data/bike+sharing+dataset/day.csv",
@@ -22,72 +25,129 @@ hour_data <- read.csv(
   sep = ","
 )
 
-# Variables that are numerically encoded but represent categories
-day_categorical <- c(
+# Quantitative predictor variables
+day_quantitative_predictors <- c(
+  "temp", "atemp", "hum", "windspeed"
+)
+
+hour_quantitative_predictors <- c(
+  "temp", "atemp", "hum", "windspeed"
+)
+
+# Qualitative predictor variables
+day_qualitative_predictors <- c(
   "season", "yr", "mnth", "holiday",
   "weekday", "workingday", "weathersit"
 )
 
-hour_categorical <- c(
+hour_qualitative_predictors <- c(
   "season", "yr", "mnth", "hr", "holiday",
   "weekday", "workingday", "weathersit"
 )
 
-# Quantitative variables: numeric variables that are not categorical
-day_quantitative <- names(day_data)[
-  sapply(day_data, is.numeric) &
-  !(names(day_data) %in% day_categorical)
-]
+# Datetime variable
+day_datetime <- c("dteday")
+hour_datetime <- c("dteday")
 
-hour_quantitative <- names(hour_data)[
-  sapply(hour_data, is.numeric) &
-  !(names(hour_data) %in% hour_categorical)
-]
+# Index identifier
+day_index <- c("instant")
+hour_index <- c("instant")
 
-# Qualitative variables: character/factor variables + numerically encoded categories
-day_qualitative <- names(day_data)[
-  sapply(day_data, function(x) is.character(x) | is.factor(x)) |
-  names(day_data) %in% day_categorical
-]
+# Response/count variables
+day_response <- c("casual", "registered", "cnt")
+hour_response <- c("casual", "registered", "cnt")
 
-hour_qualitative <- names(hour_data)[
-  sapply(hour_data, function(x) is.character(x) | is.factor(x)) |
-  names(hour_data) %in% hour_categorical
-]
 
-knitr::kable(
-  head(day_data),
-  caption = "First Six Rows of the Day Dataset"
-)
-knitr::kable(
-  head(hour_data),
-  caption = "First Six Rows of the Hour Dataset"
-)
+# First six observations of the day dataset
+table_1 <- knitr::kable(
+  head(day_data[, 1:8]),
+  caption = "First six observations of the day dataset."
+) %>%
+  kableExtra::kable_styling(
+    latex_options = "HOLD_position"
+  )
 
+table_2 <- knitr::kable(
+  head(day_data[, 9:16]),
+  caption = "First six observations of the day dataset."
+) %>%
+  kableExtra::kable_styling(
+    latex_options = "HOLD_position"
+  )
+
+
+# First six observations of the hour dataset
+table_3 <- knitr::kable(
+  head(hour_data[, 1:9]),
+  caption = "First six observations of the hour dataset."
+) %>%
+  kableExtra::kable_styling(
+    latex_options = "HOLD_position"
+  )
+
+table_4 <- knitr::kable(
+  head(hour_data[, 10:17]),
+  caption = "First six observations of the hour dataset."
+) %>%
+  kableExtra::kable_styling(
+    latex_options = "HOLD_position"
+  )
+
+
+# Variable types and roles
 variable_types <- data.frame(
-  Dataset = c("Day", "Day", "Hour", "Hour"),
+  Dataset = c(
+    "Day", "Day", "Day", "Day", "Day",
+    "Hour", "Hour", "Hour", "Hour", "Hour"
+  ),
   Type = c(
-    "Quantitative",
-    "Qualitative",
-    "Quantitative",
-    "Qualitative"
+    "Quantitative Predictor",
+    "Qualitative Predictor",
+    "Datetime",
+    "Index Identifier",
+    "Response/Count",
+    "Quantitative Predictor",
+    "Qualitative Predictor",
+    "Datetime",
+    "Index Identifier",
+    "Response/Count"
   ),
   Variables = c(
-    paste(day_quantitative, collapse = ", "),
-    paste(day_qualitative, collapse = ", "),
-    paste(hour_quantitative, collapse = ", "),
-    paste(hour_qualitative, collapse = ", ")
+    paste(day_quantitative_predictors, collapse = ", "),
+    paste(day_qualitative_predictors, collapse = ", "),
+    paste(day_datetime, collapse = ", "),
+    paste(day_index, collapse = ", "),
+    paste(day_response, collapse = ", "),
+    paste(hour_quantitative_predictors, collapse = ", "),
+    paste(hour_qualitative_predictors, collapse = ", "),
+    paste(hour_datetime, collapse = ", "),
+    paste(hour_index, collapse = ", "),
+    paste(hour_response, collapse = ", ")
   )
 )
 
-knitr::kable(
+table_5 <- knitr::kable(
   variable_types,
-  caption = "Quantitative and Qualitative Variables",
-  booktabs = TRUE
-)
-
+  caption = "Variable Types and Roles in the Day and Hour Datasets.",
+  col.names = c("Dataset", "Type", "Variables")
+) %>%
+  kableExtra::kable_styling(
+    latex_options = "HOLD_position"
+  )
 ```
-We can automatically check the R storage type from the variable's statistical type. If the data type is not numeric, then the variable is not quantitative. However, a qualitative (categorical) variable can still have a numeric data type. The season, year, month, holiday, weekday, workingday, and weathersit variables are all categorical, but stored as the integer data type. These variable types were hard-coded.
+
+```{r}
+#| echo: false
+table_1
+table_2
+table_3
+table_4
+table_5
+```
+
+Predictor variables are used to explain or predict a response variable. Quantitative predictors have numerical values that represent measurable quantities, while qualitative predictors represent categories. The response variables are the outcomes being predicted. The index identifier is used to identify observations. The datetime variable is its own variable type, rather than being a qualitative predictor, because dates have meaningful chronological order rather than being labels for unrelated categories.
+
+We can automatically check the R storage type of each variable. However, the storage type does not always determine the statistical type. For example, a qualitative variable can still have a numeric data type. Because of this, there is no reliable way to assign all variable types automatically based on the data type, so the variable types are assigned manually.
 
 ## 2.b Summary Statistics
 For each quantitative predictor, calculate and report:
@@ -96,25 +156,48 @@ For each quantitative predictor, calculate and report:
 - Mean
 - Standard deviation
 
-Then determine which season has the highest average bike rental court.
+Then determine which season has the highest average bike rental count.
 
 ```{r}
 #| output: true
+
+library(kableExtra)
 
 # Summary statistics for quantitative predictors
 day_summary <- day_data %>%
   summarise(
     across(
-      all_of(day_quantitative),
+      all_of(day_quantitative_predictors),
       list(
         Range = ~ max(.x) - min(.x),
         Mean = ~ mean(.x),
         SD = ~ sd(.x)
       )
     )
+  ) %>%
+  pivot_longer(
+    everything(),
+    names_to = c("Variable", "Statistic"),
+    names_sep = "_"
+  ) %>%
+  pivot_wider(
+    names_from = Statistic,
+    values_from = value
+  ) %>%
+  mutate(
+    Mean = round(Mean, 2),
+    SD = round(SD, 2)
   )
 
-day_summary
+table_summary <- knitr::kable(
+  day_summary,
+  caption = "Summary Statistics for Quantitative Predictors.",
+  booktabs = TRUE
+) %>%
+  kableExtra::kable_styling(
+    latex_options = "hold_position"
+  )
+
 
 # Average bike rental count by season
 season_summary <- day_data %>%
@@ -122,20 +205,41 @@ season_summary <- day_data %>%
   summarise(
     average_rentals = mean(cnt)
   ) %>%
-  arrange(desc(average_rentals))
+  arrange(desc(average_rentals)) %>%
+  mutate(
+    average_rentals = round(average_rentals, 2)
+  )
 
-season_summary
+table_season <- knitr::kable(
+  season_summary,
+  col.names = c("Season", "Average Rentals"),
+  caption = "Average Bike Rentals by Season.",
+  booktabs = TRUE
+) %>%
+  kableExtra::kable_styling(
+    latex_options = "hold_position"
+  )
 
+# Identify season with highest average rentals
 highest_season <- season_summary %>%
   slice_max(average_rentals, n = 1)
+```
+
+```{r}
+#| echo: false
+
+# Display tables
+table_summary
+table_season
 
 cat(
   "Season with the highest average bike rental count:",
   highest_season$season,
   "\nAverage rental count:",
-  round(highest_season$average_rentals, 2)
+  highest_season$average_rentals
 )
 ```
+
 ## 2.c Rentals by Weather Condition
 Create boxplots showing bike rental count for each weather condition.
 
@@ -149,35 +253,62 @@ ggplot(day_data, aes(x = factor(weathersit), y = cnt)) +
   ) +
   theme_minimal()
 
+# Median bike rental count by weather condition
 weather_summary <- day_data %>%
   group_by(weathersit) %>%
   summarise(
     median_rentals = median(cnt)
   ) %>%
-  arrange(desc(median_rentals))
+  arrange(desc(median_rentals)) %>%
+  mutate(
+    median_rentals = round(median_rentals, 2)
+  )
 
-weather_summary
+table_weather <- knitr::kable(
+  weather_summary,
+  col.names = c("Weather Condition", "Median Rentals"),
+  caption = "Median Bike Rentals by Weather Condition.",
+  booktabs = TRUE
+) %>%
+  kableExtra::kable_styling(
+    latex_options = "hold_position"
+  )
+```
+
+```{r}
+#| echo: false
+
+# Display Results
+table_weather
 
 cat(
   "\nWeather condition with the highest median bike rental count:",
   weather_summary$weathersit[1]
 )
 ```
-The median bike rental count is highest under weather condition 1, with a median of 4,844 rentals. Weather condition 2 has a lower median of 4,040, while condition 3 has the lowest at 1,817. Overall, bike rentals tend to be higher under better weather conditions.
+The median bike rental count is highest under weather condition 1, with a median of 4,844 rentals. Weather condition 2 has a lower median of 4,040, while condition 3 has the lowest at 1,817. Overall, bike rentals tend to be higher under weather condition 1.
 
 ## 2.d Monthly Bike Rentals 
 Create a bar plot showing the total number of bike rentals for each month of the year.
 
 ```{r}
+#| warning: false
+
 # Calculate total bike rentals for each month
 monthly_rentals <- day_data %>%
-  mutate(month = format(as.Date(dteday), "%B")) %>%
+  mutate(
+    month = factor(
+      format(as.Date(dteday), "%B"),
+      levels = month.name,
+      ordered = TRUE
+    )
+  ) %>%
   group_by(month) %>%
-  summarise(total_rentals = sum(cnt)) %>%
-  mutate(month = factor(month, levels = month.name))
+  summarise(
+    total_rentals = sum(cnt)
+  )
 
-monthly_rentals
-
+# Bar plot of monthly rental totals
 ggplot(monthly_rentals, aes(x = month, y = total_rentals)) +
   geom_col() +
   labs(
@@ -189,17 +320,37 @@ ggplot(monthly_rentals, aes(x = month, y = total_rentals)) +
     axis.text.x = element_text(angle = 45, hjust = 1)
   )
 
+# Format monthly rental totals as a table
+table_monthly <- knitr::kable(
+  monthly_rentals,
+  col.names = c("Month", "Total Rentals"),
+  caption = "Total Bike Rentals by Month.",
+  booktabs = TRUE
+) %>%
+  kableExtra::kable_styling(
+    latex_options = c("hold_position")
+  )
+
+# Identify month with highest total rentals
 highest_month <- monthly_rentals %>%
   slice_max(total_rentals, n = 1)
+```
+
+```{r}
+#| echo: false
+
+# Display Results
+table_monthly
 
 cat(
   "Month with the highest total number of rentals:",
   as.character(highest_month$month),
   "\nTotal rentals:",
-  highest_month$total_rentals)
+  highest_month$total_rentals
+)
 ```
 
-I extracted the month from the **dteday** variable, grouped the data by month, and summed the **cnt** variable within each month to calculate the total number of bike rentals. The month with the highest number of rentals is **`r `highest_month$total_rentals`**. 
+I extracted the month from the **`dteday`** variable, grouped the data by month, and summed the **`cnt`** variable within each month to calculate the total number of bike rentals. The month with the highest number of rentals is **`r highest_month$month`**, with **`r highest_month$total_rentals`** total rentals.
 
 ## 2.e Relationships Among Variables 
 Using the dataset, investigate the relationships among the predictors. Focus the correlation matrix on **quantitative predictors**: temp, atemp, hum, and windspeed. The rental-count variables (casual, registered, cnt) are response variables rather than predictors. Avoid including variables such as season, weekday, weathersit because their categories are represented by numerical codes.
@@ -216,10 +367,17 @@ quantitative_predictors <- c(
 # Correlation matrix
 correlation_matrix <- day_data %>%
   select(all_of(quantitative_predictors)) %>%
-  cor()
+  cor() %>%
+  round(3)
 
-cat("Correlation Matrix:\n")
-correlation_matrix
+table_correlation <- knitr::kable(
+  correlation_matrix,
+  caption = "Correlation Matrix of Quantitative Predictors.",
+  booktabs = TRUE
+) %>%
+  kableExtra::kable_styling(latex_options = "hold_position")
+
+table_correlation
 
 # Scatterplot matrix
 day_data %>%
@@ -229,5 +387,6 @@ day_data %>%
 The strongest relationship is between **temp** and **atemp** with a correlation of 0.992, indicating a strong positive linear relationship. This is also seen in the scatterplot. **temp** and **atemp** are highly redundant.
 
 ## 2.f Predicting Bike Rental Count
-We want to predict the total bike rental count using the other variables. We can identify useful predictors based on the relationships found in **2.e**. Since **tempt** and **atempt** are highly correlated with each other, using both could introduce redundancy. **temp**, **hum**, and **windspeed** may be useful predictors based on the correlation analysis. **season**, **yr**, and **weathersit** were not studied in the correlation analysis, but could also potentially be useful.
-Correlation alone has limitations because it only measures linear relationships between quantitative variables. It does not capture nonlinear relationships of relationships involving categorical variables. It also does not establish causation.
+We can identify potential predictors and examine redundancy based on the relationships found in 2.e. Since **temp** and **atemp** are highly correlated, using both as predictors could introduce redundancy. For a prediction model, I would use one of these variables along with hum and windspeed. Categorical variables such as season, yr, and weathersit could also be used.
+
+The correlation analysis alone cannot determine which variables are most useful for prediction, because it only examines linear relationships among quantitative predictors. It does not measure the relationships between the quantitative predictors and the response variable. Furthermore, it does not capture nonlinear relationships or relationships involving categorical variables.
