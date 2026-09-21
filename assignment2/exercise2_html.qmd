@@ -56,6 +56,9 @@ hour_qualitative <- names(hour_data)[
   names(hour_data) %in% hour_categorical
 ]
 
+head(day_data)
+head(hour_data)
+
 # Print results
 cat("DAY DATASET\n")
 cat("Quantitative variables:\n")
@@ -70,3 +73,147 @@ cat("\n\nQualitative variables:\n")
 cat(paste(hour_qualitative, collapse = ", "))
 
 ```
+We can automatically check the R storage type from the variable's statistical type. If the data type is not numeric, then the variable is not quantitative. However, a qualitative (categorical) variable can still have a numeric data type. The season, year, month, holiday, weekday, workingday, and weathersit variables are all categorical, but stored as the integer data type. These variable types were hard-coded.
+
+## 2.b Summary Statistics
+For each quantitative predictor, calculate and report:
+
+- Range
+- Mean
+- Standard deviation
+
+Then determine which season has the highest average bike rental court.
+
+```{r}
+#| output: true
+
+# Summary statistics for quantitative predictors
+day_summary <- day_data %>%
+  summarise(
+    across(
+      all_of(day_quantitative),
+      list(
+        Range = ~ max(.x) - min(.x),
+        Mean = ~ mean(.x),
+        SD = ~ sd(.x)
+      )
+    )
+  )
+
+day_summary
+
+# Average bike rental count by season
+season_summary <- day_data %>%
+  group_by(season) %>%
+  summarise(
+    average_rentals = mean(cnt)
+  ) %>%
+  arrange(desc(average_rentals))
+
+season_summary
+
+highest_season <- season_summary %>%
+  slice_max(average_rentals, n = 1)
+
+cat(
+  "Season with the highest average bike rental count:",
+  highest_season$season,
+  "\nAverage rental count:",
+  round(highest_season$average_rentals, 2)
+)
+```
+## 2.c Rentals by Weather Condition
+Create boxplots showing bike rental count for each weather condition.
+
+```{r}
+# Boxplots of bike rental count by weather condition
+ggplot(day_data, aes(x = factor(weathersit), y = cnt)) +
+  geom_boxplot() +
+  labs(
+    x = "Weather Condition",
+    y = "Bike Rental Count"
+  ) +
+  theme_minimal()
+
+weather_summary <- day_data %>%
+  group_by(weathersit) %>%
+  summarise(
+    median_rentals = median(cnt)
+  ) %>%
+  arrange(desc(median_rentals))
+
+weather_summary
+
+cat(
+  "\nWeather condition with the highest median bike rental count:",
+  weather_summary$weathersit[1]
+)
+```
+The median bike rental count is highest under weather condition 1, with a median of 4,844 rentals. Weather condition 2 has a lower median of 4,040, while condition 3 has the lowest at 1,817. Overall, bike rentals tend to be higher under better weather conditions.
+
+## 2.d Monthly Bike Rentals 
+Create a bar plot showing the total number of bike rentals for each month of the year.
+
+```{r}
+# Calculate total bike rentals for each month
+monthly_rentals <- day_data %>%
+  mutate(month = format(as.Date(dteday), "%B")) %>%
+  group_by(month) %>%
+  summarise(total_rentals = sum(cnt)) %>%
+  mutate(month = factor(month, levels = month.name))
+
+monthly_rentals
+
+ggplot(monthly_rentals, aes(x = month, y = total_rentals)) +
+  geom_col() +
+  labs(
+    x = "Month",
+    y = "Total Bike Rentals"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+highest_month <- monthly_rentals %>%
+  slice_max(total_rentals, n = 1)
+
+cat(
+  "Month with the highest total number of rentals:",
+  as.character(highest_month$month),
+  "\nTotal rentals:",
+  highest_month$total_rentals)
+```
+
+I extracted the month from the **dteday** variable, grouped the data by month, and summed the **cnt** variable within each month to calculate the total number of bike rentals. The month with the highest number of rentals is **`r `highest_month$total_rentals`**. 
+
+## 2.e Relationships Among Variables 
+Using the dataset, investigate the relationships among the predictors. Focus the correlation matrix on **quantitative predictors**: temp, atemp, hum, and windspeed. The rental-count variables (casual, registered, cnt) are response variables rather than predictors. Avoid including variables such as season, weekday, weathersit because their categories are represented by numerical codes.
+
+```{r}
+# Quantitative predictors
+quantitative_predictors <- c(
+  "temp",
+  "atemp",
+  "hum",
+  "windspeed"
+)
+
+# Correlation matrix
+correlation_matrix <- day_data %>%
+  select(all_of(quantitative_predictors)) %>%
+  cor()
+
+cat("Correlation Matrix:\n")
+correlation_matrix
+
+# Scatterplot matrix
+day_data %>%
+  select(all_of(quantitative_predictors)) %>%
+  pairs()
+```
+The strongest relationship is between **temp** and **atemp** with a correlation of 0.992, indicating a strong positive linear relationship. This is also seen in the scatterplot. **temp** and **atemp** are highly redundant.
+
+## 2.f Predicting Bike Rental Count
+We want to predict the total bike rental count using the other variables. We can identify useful predictors based on the relationships found in **2.e**. Since **tempt** and **atempt** are highly correlated with each other, using both could introduce redundancy. **temp**, **hum**, and **windspeed** may be useful predictors based on the correlation analysis. **season**, **yr**, and **weathersit** were not studied in the correlation analysis, but could also potentially be useful.
+Correlation alone has limitations because it only measures linear relationships between quantitative variables. It does not capture nonlinear relationships of relationships involving categorical variables. It also does not establish causation.
